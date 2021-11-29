@@ -1,0 +1,161 @@
+\documentclass{article}
+
+% Используемые пакеты.
+\usepackage[top=2cm,bottom=2cm,left=2.5cm,right=2.5cm]{geometry} % размеры полей
+\usepackage{amsmath,amsthm,amscd,amsfonts,amssymb}               % специальные символы и т.п.
+\usepackage{indentfirst}                                         % отступ для начала абзаца
+\usepackage{textcomp}                                            % текст в формулах
+\usepackage{graphicx}                                            % подключение графики
+\usepackage[cp1251]{inputenc}                                    % чтобы документ открывался в редакторе MikTex
+\usepackage[T2A]{fontenc}                                        % для поддержки русского языка
+\usepackage[english,russian]{babel}                              % включение русского языка
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Нумерация по секциям.
+% \numberwithin{equation}{section}
+
+% Стили для теорем, лемм и определений.
+\theoremstyle{plain}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{lemma}{Лемма}[section]
+\newtheorem{definition}{Определение}[section]
+
+\begin{document}
+
+\title{Лекция 5. Численное решение уравнений гиперболического типа.}
+\date{}
+
+\maketitle
+
+В качестве примера уравнения гиперболического типа рассматривается одномерное уравнение колебаний струны, которое записывается в виде:
+
+\begin{equation}
+\frac{\partial^2 u}{\partial t^2} = \frac{\partial^2 u}{\partial x^2} + f(x, t), \ x \in (0, X), \ t \in (0, T]
+\end{equation}
+
+Для численного решения данного уравнения введем равномерную сетку по пространству и по времени:
+
+\begin{equation}
+\overline{\omega_h} = \{ x_i = ih; i = 0, 1, \ldots, N; Nh = X \}
+\end{equation}
+
+\begin{equation}
+\overline{\omega_{\tau}} = \{ t_n = n\tau; n = 0, 1, \ldots, M; M\tau = T \}
+\end{equation}
+
+\begin{equation}
+\overline{\omega_{h\tau}} = \overline{\omega_h} \times \overline{\omega_{\tau}}
+\end{equation}
+
+Необходимо выполнить разностную аппроксимацию оператора $Lu = \frac{\partial^2 u}{\partial t^2} - \frac{\partial^2 u}{\partial x^2}$.
+
+\section{Разностная схема "крест"}
+
+Явной разностной схеме соответствует шаблон, представленный на рис.~\ref{fig:explicit-scheme}.
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/cross-scheme.pdf}
+	\caption{Шаблон схемы "крест".}
+	\label{fig:explicit-scheme}
+\end{figure}
+
+Соответствующий разностный оператор имеет вид:
+
+\begin{equation}
+L_{h\tau}u = u_{\overline{t}t} - u_{\overline{x}x} = \frac{u(x, t + \tau) - 2u(x, t) + u(x, t - \tau)}{\tau^2} - \frac{u(x + h, t) - 2u(x, t) + u(x - h, t)}{h^2} 
+\end{equation}
+
+\section{Неявная разностная схема}
+
+Неявной разностной схеме соответствует шаблон, представленный на рис.~\ref{fig:implicit-scheme}.
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/implicit-scheme.pdf}
+	\caption{Шаблон неявной схемы.}
+	\label{fig:implicit-scheme}
+\end{figure}
+
+Соответствующий разностный оператор имеет вид:
+
+\begin{multline}
+L_{h\tau}^{\sigma}u = u_{\overline{t}t} - (\sigma\hat{u}_{\overline{x}x} + (1 - 2\sigma)u_{\overline{x}x} + \sigma\check{u}_{\overline{x}x}) = \frac{u(x, t + \tau) - 2u(x, t) + u(x, t - \tau)}{\tau^2} \\ - \big(\sigma\frac{u(x + h, t + \tau) - 2u(x, t + \tau) + u(x - h, t + \tau)}{h^2} \\ + (1 - 2\sigma)\frac{u(x + h, t) - 2u(x, t) + u(x - h, t)}{h^2} + \sigma\frac{u(x + h, t - \tau) - 2u(x, t - \tau) + u(x - h, t - \tau)}{h^2} \big)
+\end{multline}
+
+\section{Оценка погрешности аппроксимации разностных схем}
+
+Погрешность аппроксимации разностной схемы с использованием $L_{h\tau}^{\sigma}u$ равна $O(\tau^2 + h^2)$, так как 
+
+\begin{equation}
+u_{\overline{t}t} = \frac{\partial^2 u(x, t)}{\partial t^2} + O(\tau^2)
+\end{equation}
+
+\begin{equation}
+\check{u}_{\overline{x}x} + \hat{u}_{\overline{x}x} = \frac{\partial^2 u(x, t)}{\partial x^2} + O(h^2)
+\end{equation}
+
+\begin{equation}
+u_{\overline{x}x} = \frac{\partial^2 u(x, t)}{\partial x^2} + O(h^2)
+\end{equation}
+
+\section{Система уравнений для численного решения уравнения колебаний}
+
+Без учета граничных условий система уравнений для численного решения уравнения колебаний выглядит следующим образом:
+
+\begin{equation}
+\frac{y_i^{n+1} - 2y_i^n + y_i^{n - 1}}{\tau^2} = \sigma\frac{y_{i + 1}^{n + 1} - 2y_i^{n + 1} + y_{i - 1}^{n + 1}}{h^2} + (1 - 2\sigma)\frac{y_{i + 1}^n - 2y_i^n + y_{i - 1}^n}{h^2} + \sigma\frac{y_{i + 1}^{n - 1} - 2y_i^{n - 1} + y_{i - 1}^{n - 1}}{h^2} + f_i^n
+\end{equation}
+
+В случае использования схемы "крест" ($\sigma = 0$) система уравнений вырождается в следующую систему:
+
+\begin{equation}
+\frac{y_i^{n+1} - 2y_i^n + y_i^{n - 1}}{\tau^2} = \frac{y_{i + 1}^n - 2y_i^n + y_{i - 1}^n}{h^2} + f_i^n
+\end{equation}
+
+или
+
+\begin{equation}
+y_i^{n+1} - 2y_i^n + y_i^{n - 1} = \left(\frac{\tau}{h}\right)^2(y_{i + 1}^n - 2y_i^n + y_{i - 1}^n) + \tau^2 f_i^n
+\end{equation}
+
+из которой значение $y_i^{n + 1}$ выражается явным образом:
+
+\begin{equation}
+y_i^{n+1} = \left(\frac{\tau}{h}\right)^2(y_{i + 1}^n - 2y_i^n + y_{i - 1}^n) + 2y_i^n - y_i^{n - 1} + \tau^2 f_i^n
+\end{equation}
+
+\begin{equation}
+y_i^{n+1} = 2y_i^n\left(1 - \left(\frac{\tau}{h}\right)^2 \right) + \left(\frac{\tau}{h}\right)^2(y_{i + 1}^n + y_{i - 1}^n) - y_i^{n - 1} + \tau^2 f_i^n
+\end{equation}
+
+Для отсутствия накапливания ошибок вычислений необходимо обеспечение условия $\frac{\tau}{h} < 1$, что является условием устойчивости разностной схемы.
+
+При использовании $\sigma \ne 0$ система уравнений может быть записана в виде
+
+\begin{equation}
+\frac{y_i^{n+1} - 2y_i^n + y_i^{n - 1}}{\tau^2} = \sigma\frac{y_{i + 1}^{n + 1} - 2y_i^{n + 1} + y_{i - 1}^{n + 1}}{h^2} + F_i^n
+\end{equation}
+
+где 
+
+\begin{equation}
+F_i^n = (1 - 2\sigma)\frac{y_{i + 1}^n - 2y_i^n + y_{i - 1}^n}{h^2} + \sigma\frac{y_{i + 1}^{n - 1} - 2y_i^{n - 1} + y_{i - 1}^{n - 1}}{h^2} + f_i^n
+\end{equation}
+
+или 
+
+\begin{equation}
+y_i^{n+1} - 2y_i^n + y_i^{n - 1} = \sigma\left(\frac{\tau}{h}\right)^2(y_{i + 1}^{n + 1} - 2y_i^{n + 1} + y_{i - 1}^{n + 1}) + \tau^2 F_i^n
+\end{equation}
+
+\begin{equation}
+\left(-\sigma\left(\frac{\tau}{h}\right)^2\right)y_{i + 1}^{n + 1} + \left(1+2\sigma\left(\frac{\tau}{h}\right)^2\right)y_i^{n + 1} + \left(-\sigma\left(\frac{\tau}{h}\right)^2\right)y_{i - 1}^{n + 1} = 2y_i^n - y_i^{n - 1} + \tau^2 F_i^n
+\end{equation}
+
+Матрица данной системы уравнений является трехдиагональной, с диагональным преобладанием и решается методом прогонки. Таким образом, неявная разностная схема является устойчивой.
+
+\end{document}
