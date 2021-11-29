@@ -1,0 +1,182 @@
+\documentclass{article}
+
+% Используемые пакеты.
+\usepackage[top=2cm,bottom=2cm,left=2.5cm,right=2.5cm]{geometry} % размеры полей
+\usepackage{amsmath,amsthm,amscd,amsfonts,amssymb}               % специальные символы и т.п.
+\usepackage{indentfirst}                                         % отступ для начала абзаца
+\usepackage{textcomp}                                            % текст в формулах
+\usepackage{graphicx}                                            % подключение графики
+\usepackage[cp1251]{inputenc}                                    % чтобы документ открывался в редакторе MikTex
+\usepackage[T2A]{fontenc}                                        % для поддержки русского языка
+\usepackage[english,russian]{babel}                              % включение русского языка
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Нумерация по секциям.
+% \numberwithin{equation}{section}
+
+% Стили для теорем, лемм и определений.
+\theoremstyle{plain}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{lemma}{Лемма}[section]
+\newtheorem{definition}{Определение}[section]
+
+\begin{document}
+
+\title{Лекция 4. Численное решение уравнений эллиптического типа.}
+\date{}
+
+\maketitle
+
+В качестве примера уравнения эллиптического типа рассматривается двумерное уравнение Пуассона, которое записывается в виде:
+
+\begin{equation}
+\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} = f(x, y), \ x \in (0, X), \ y \in (0, Y)
+\end{equation}
+
+Для численного решения данного уравнения введем равномерную сетку по каждому измерению пространства:
+
+\begin{equation}
+\overline{\omega_{h_x}} = \{ x_i = ih_x; i = 0, 1, \ldots, N_x; N_xh_x = X \}
+\end{equation}
+
+\begin{equation}
+\overline{\omega_{h_y}} = \{ y_j = jh_y; j = 0, 1, \ldots, N_y; N_yh_y = Y \}
+\end{equation}
+
+\begin{equation}
+\overline{\omega_{h_xh_y}} = \overline{\omega_{h_x}} \times \overline{\omega_{h_y}}
+\end{equation}
+
+Необходимо выполнить разностную аппроксимацию оператора $Lu = \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2}$.
+
+\section{Разностная схема}
+
+В каждой внутренней ячейке рассматриваемой области можно выполнить аппроксимацию
+
+\begin{equation}
+u_{\overline{x}x} = \frac{\partial^2 u}{\partial x^2} + O(h_x^2)
+\end{equation}
+
+\begin{equation}
+u_{\overline{y}y} = \frac{\partial^2 u}{\partial y^2} + O(h_y^2)
+\end{equation}
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/cross-scheme.pdf}
+	\caption{Шаблон разностной схемы для уравнения Пуассона.}
+	\label{fig:cross-scheme}
+\end{figure}
+
+Таким образом, можно рассмотреть разностный оператор
+
+\begin{equation}
+L_{h_xh_y}u = \frac{u(x + h_x, y) - 2u(x, y) + u(x - h_x, y)}{h_x^2} + \frac{u(x, y + h_y) - 2u(x, y) + u(x, y - h_y)}{h_y^2}
+\end{equation}
+
+для которого верно
+
+\begin{equation}
+L_{h_xh_y}u = Lu + O(h_x^2 + h_y^2)
+\end{equation}
+
+Данной разностной схеме соответствует шаблон, представленный на рис.~\ref{fig:cross-scheme}.
+
+\section{Устойчивость разностной схемы для уравнения Пуассона}
+
+Для определения устойчивости разностной схемы запишем сеточное уравнение (сеточную функцию будем обозначать той же буквой $u$, так как буква $y$ занята под пространственную переменную).
+
+\begin{equation}
+\frac{u_{i + 1, j} - 2u_{i, j} + u_{i - 1, j}}{h_x^2} + \frac{u_{i, j + 1} - 2u_{i, j} + u_{i, j - 1}}{h_y^2} = f_{i, j}
+\end{equation}
+
+\begin{lemma}\label{lemma:lem1}
+Пусть сеточная функция $u$ определена на сетке $\overline{\omega_{h_xh_y}}$, во всех внутренних узлах удовлетворяет уравнению
+\begin{equation}
+\frac{u_{i + 1, j} - 2u_{i, j} + u_{i - 1, j}}{h_x^2} + \frac{u_{i, j + 1} - 2u_{i, j} + u_{i, j - 1}}{h_y^2} = f_{i, j}
+\end{equation}
+причем $f_{i, j} \ge 0$. Тогда наибольшее значение сеточная функция $u$ достигает хотя бы в одной точке границы сеточной области.
+\end{lemma}
+
+Предположим, что это не так, и наибольшее значение достигается во внутренней точке $(i, j)$. Перепишем сеточное уравнение для этой точки в следующем виде:
+
+\begin{equation}
+\frac{u_{i + 1, j} - u_{i, j}}{h_x^2} + \frac{u_{i - 1, j} - u_{i, j}}{h_x^2} + \frac{u_{i, j + 1} - u_{i, j}}{h_y^2} + \frac{u_{i, j - 1} - u_{i, j}}{h_y^2} = f_{i, j}
+\end{equation}
+ 
+В силу предположения слева хотя бы одно из слагаемых отрицательно, а остальные неположительны, тогда как справа стоит неотрицательное число. Противоречие. $\blacksquare$\\
+
+\begin{lemma}\label{lemma:lem2}
+Пусть сеточная функция $u$ определена на сетке $\overline{\omega_{h_xh_y}}$, во всех внутренних узлах удовлетворяет уравнению
+\begin{equation}
+\frac{u_{i + 1, j} - 2u_{i, j} + u_{i - 1, j}}{h_x^2} + \frac{u_{i, j + 1} - 2u_{i, j} + u_{i, j - 1}}{h_y^2} = f_{i, j}
+\end{equation}
+причем $f_{i, j} \le 0$. Тогда наименьшее значение сеточная функция $u$ достигает хотя бы в одной точке границы сеточной области.
+\end{lemma}
+
+Доказательство аналогично доказательству предыдущей леммы. $\blacksquare$\\
+
+\begin{lemma}\label{lemma:lem3}
+Решение сеточного уравнения Лапласа
+\begin{equation}
+\frac{u_{i + 1, j} - 2u_{i, j} + u_{i - 1, j}}{h_x^2} + \frac{u_{i, j + 1} - 2u_{i, j} + u_{i, j - 1}}{h_y^2} = 0
+\end{equation}
+достигает своего минимального и максимального значения на границе сеточной области.
+\end{lemma}
+
+Доказательство данной леммы является объединением утверждений двух предыдущих лемм. $\blacksquare$\\
+
+Рассмотрим норму сеточной функции $||u|| =  \max_{D}{|u_{i,j}|}$, где максимум берется по всем внутренним точкам сеточной области.
+
+Для доказательства устойчивости нужно доказать однозначную разрешимость разностной задачи с любой правой частью, и любыми граничными условиями, а также получить оценку
+
+\begin{equation}
+||u|| \le C ||f||
+\end{equation}
+
+где
+
+\begin{equation}
+||f|| = \max_{D}{|f_{i,j}|} + \max_{\partial D}{\phi_{i,j}}
+\end{equation}
+
+Здесь через $D$ обозначены внутренние точки сеточной области, $\partial D$ - граничные точки сеточной области, $\phi$ - функция граничных условий.
+
+Рассмотрим сеточное уравнение Лапласа, в силу Леммы~\ref{lemma:lem3} оно имеет лишь тривиальное решение. Так как сеточная система это система линейных уравнений, и она имеет только тривиальное решение с нулевой правой частью, то она разрешима единственным образом при любой ненулевой правой части.
+
+Погрешность разностного оператора, приближающего оператор Лапласа, на любом полиноме второй степени равна нулю. Рассмотрим следующую функцию
+
+\begin{equation}
+P_h = \frac{1}{4}(R^2 - (x^2 + y^2))\max_{D}{|f_{i,j}|} + \max_{\partial D}{\phi_{i,j}}
+\end{equation}
+
+где $R$ - радиус окружности с центром в начале координат и включающей в себя всю область $D$.
+
+Рассмотрим сеточную функцию $w = u - P^h$ и применим к ней разностный оператор Лапласа. В результате получим:
+
+\begin{equation}
+\frac{w_{i + 1, j} - 2w_{i, j} + w_{i - 1, j}}{h_x^2} + \frac{w_{i, j + 1} - 2w_{i, j} + w_{i, j - 1}}{h_y^2} = f_{i, j} + \max_{D}{|f_{i,j}|}
+\end{equation}
+
+Тогда, согласно Лемме~\ref{lemma:lem1}, функция $w$ принимает наибольшее значение на границе области. Однако функция $w$ на границе области принимает только отрицательные значения. Таким образом $u_{i, j} - P_{i, j}^h \le 0$ во всех точках сеточной области.
+
+Аналогично, рассматривая сеточную функцию $v = u + P^h$, и применяя Лемму~\ref{lemma:lem2}, получим, что $u_{i, j} + P_{i, j}^h \ge 0$ во всех точках области.
+
+Отсюда получим
+
+\begin{equation}
+|u_{i, j}| \le |P_{i, j}^h| \le \frac{1}{4}R^2\max_{D}{f_{i, j}} + \max_{\partial D}{\phi_{i, j}}
+\end{equation}
+
+а значит
+
+\begin{equation}
+||u|| \le \max\left(1, \frac{R^2}{4}\right)||f||
+\end{equation}
+
+что доказывает устойчивость разностной схемы.
+ 
+\end{document}
