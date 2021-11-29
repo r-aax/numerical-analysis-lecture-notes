@@ -1,0 +1,158 @@
+\documentclass{article}
+
+% Используемые пакеты.
+\usepackage[top=2cm,bottom=2cm,left=2.5cm,right=2.5cm]{geometry} % размеры полей
+\usepackage{amsmath,amsthm,amscd,amsfonts,amssymb}               % специальные символы и т.п.
+\usepackage{indentfirst}                                         % отступ для начала абзаца
+\usepackage{textcomp}                                            % текст в формулах
+\usepackage{graphicx}                                            % подключение графики
+\usepackage[cp1251]{inputenc}                                    % чтобы документ открывался в редакторе MikTex
+\usepackage[T2A]{fontenc}                                        % для поддержки русского языка
+\usepackage[english,russian]{babel}                              % включение русского языка
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Нумерация по секциям.
+% \numberwithin{equation}{section}
+
+% Стили для теорем, лемм и определений.
+\theoremstyle{plain}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{lemma}{Лемма}[section]
+\newtheorem{definition}{Определение}[section]
+
+\begin{document}
+
+\title{Лекция 3. Численное решение уравнений параболического типа.}
+\date{}
+
+\maketitle
+
+В качестве примера уравнения параболического типа рассматривается одномерное уравнение теплопроводности, которое записывается в виде:
+
+\begin{equation}
+\frac{\partial u}{\partial t} = \frac{\partial^2 u}{\partial x^2} + f(x, t), \ x \in (0, X), \ t \in (0, T]
+\end{equation}
+
+Для численного решения данного уравнения введем равномерную сетку по пространству и по времени:
+
+\begin{equation}
+\overline{\omega_h} = \{ x_i = ih; i = 0, 1, \ldots, N; Nh = X \}
+\end{equation}
+
+\begin{equation}
+\overline{\omega_{\tau}} = \{ t_n = n\tau; n = 0, 1, \ldots, M; M\tau = T \}
+\end{equation}
+
+\begin{equation}
+\overline{\omega_{h\tau}} = \overline{\omega_h} \times \overline{\omega_{\tau}}
+\end{equation}
+
+Необходимо выполнить разностную аппроксимацию оператора $Lu = \frac{\partial u}{\partial t} - \frac{\partial^2 u}{\partial x^2}$.
+
+\section{Явная разностная схема}
+
+Явной разностной схеме соответствует шаблон, представленный на рис.~\ref{fig:explicit-scheme}.
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/explicit-scheme.pdf}
+	\caption{Шаблон явной схемы.}
+	\label{fig:explicit-scheme}
+\end{figure}
+
+Соответствующий разностный оператор имеет вид:
+
+\begin{equation}
+L_{h\tau}^0u = u_t - u_{\overline{x}x} = \frac{u(x, t + \tau) - u(x, t)}{\tau} - \frac{u(x + h, t) - 2u(x, t) + u(x - h, t)}{h^2} 
+\end{equation}
+
+\section{Неявная разностная схема}
+
+Неявной разностной схеме соответствует шаблон, представленный на рис.~\ref{fig:implicit-scheme}.
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/implicit-scheme.pdf}
+	\caption{Шаблон неявной схемы.}
+	\label{fig:implicit-scheme}
+\end{figure}
+
+Соответствующий разностный оператор имеет вид:
+
+\begin{equation}
+L_{h\tau}^1u = u_t - \hat{u}_{\overline{x}x} = \frac{u(x, t + \tau) - u(x, t)}{\tau} - \frac{u(x + h, t + \tau) - 2u(x, t + \tau) + u(x - h, t + \tau)}{h^2} 
+\end{equation}
+
+\section{Оценка погрешности аппроксимации явной и неявной разностных схем}
+
+Для оценки погрешности аппроксимации явной и неявной разностных схем рассмотрим данные оценки отдельно для операторов $u_t$, $u_{\overline{x}x}$, $\hat{u}_{\overline{x}x}$.
+
+\begin{equation}
+u_t = \frac{\partial u(x, t)}{\partial t} + O(\tau) = \frac{\partial u(x, t + \frac{\tau}{2})}{\partial t} + O(\tau^2) = \frac{\partial u(x, t + \tau)}{\partial t} + O(\tau)
+\end{equation}
+
+\begin{equation}
+u_{\overline{x}x} = \frac{\partial^2 u(x, t)}{\partial x^2} + O(h^2) = \frac{\partial^2 u(x, t + \frac{\tau}{2})}{\partial x^2} + O(\tau + h^2) = \frac{\partial^2 u(x, t + \tau)}{\partial x^2} + O(\tau + h^2)
+\end{equation}
+
+\begin{equation}
+\hat{u}_{\overline{x}x} = \frac{\partial^2 u(x, t)}{\partial x^2} + O(\tau + h^2) = \frac{\partial^2 u(x, t + \frac{\tau}{2})}{\partial x^2} + O(\tau + h^2) = \frac{\partial^2 u(x, t + \tau)}{\partial x^2} + O(h^2)
+\end{equation}
+
+Из данных соотношений следует, что и $L_{h\tau}^0$, и $L_{h\tau}^1$ аппроксимируют дифференциальный оператор $Lu$ с погрешностью $O(\tau + h^2)$ в точках $(x, t)$, $(x, t + \frac{\tau}{2})$, $(x, t + \tau)$.
+
+\section{Симметричная разностная схема}
+
+Для построения разностной схемы более высокого порядка аппроксимации по времени используется разностный оператор с весами 
+
+\begin{equation}
+L_{h\tau}^{\sigma}u = \sigma L_{h\tau}^1 u + (1 - \sigma) L_{h\tau}^0 u = u_t - (\sigma \hat{u}_{\overline{x}x} + (1 - \sigma)u_{\overline{x}x})
+\end{equation}
+
+Шаблон данной разностной схемы представлен на рис.~\ref{fig:symmetric-scheme}.
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/symmetric-scheme.pdf}
+	\caption{Шаблон симметричной схемы.}
+	\label{fig:symmetric-scheme}
+\end{figure}
+
+Учитывая соотношения
+
+\begin{equation}
+u_{\overline{x}x} = \frac{\partial^2 u(x, t + \frac{\tau}{2})}{\partial x^2} - \frac{\tau}{2} \frac{\partial^3 u(x, t + \frac{\tau}{2})}{\partial x^2 \partial t} + O(\tau^2 + h^2)
+\end{equation}
+
+\begin{equation}
+\hat{u}_{\overline{x}x} = \frac{\partial^2 u(x, t + \frac{\tau}{2})}{\partial x^2} + \frac{\tau}{2} \frac{\partial^3 u(x, t + \frac{\tau}{2})}{\partial x^2 \partial t} + O(\tau^2 + h^2)
+\end{equation}
+
+получим, что при $\sigma = 0.5$ в точке $(x, t + \frac{\tau}{2})$ разностный оператор $L_{h\tau}^{0.5}$ аппроксимирует $L$ с погрешностью $O(\tau^2 + h^2)$.
+
+\section{Система уравнений для численного решения уравнения теплопроводности}
+
+Без учета граничных условий система уравнений для численного решения уравнения теплопроводности выглядит следующим образом:
+
+\begin{equation}
+\frac{y_i^{n + 1} - y_i^n}{\tau} = (1 - \sigma)\frac{y_{i + 1}^n - 2y_i^n + y_{i - 1}^n}{h^2} + \sigma\frac{y_{i + 1}^{n + 1} - 2y_i^{n + 1} + y_{i - 1}^{n + 1}}{h^2} + f_i^{n + \sigma}
+\end{equation}
+
+\begin{equation}
+y_i^{n + 1} - y_i^n = \frac{(1 - \sigma)\tau}{h^2}(y_{i + 1}^n - 2y_i^n + y_{i - 1}^n) + \frac{\sigma\tau}{h^2}(y_{i + 1}^{n + 1} - 2y_i^{n + 1} + y_{i - 1}^{n + 1}) + \tau f_i^{n + \sigma}
+\end{equation}
+
+В случае использования явной схемы ($\sigma = 0$) значение $y_i^{n + 1}$ выражается через значения сеточной функции на предыдущем слое по времени, при этом для избежания накопления ошибки необходимо выполнение условия $|1 - \frac{2\tau}{h2}| \le 1$, то есть $\tau \le \frac{h^2}{2}$, что является условием устойчивости данной разностной схемы.
+
+В случае использования схемы с весами система уравнений приводится к следующему виду:
+
+\begin{equation}
+(-\frac{\sigma\tau}{h^2})y_{i - 1}^{n + 1} + (1 + \frac{2\sigma\tau}{h^2})y_i^{n + 1} + (-\frac{\sigma\tau}{h^2})y_{i + 1}^{n + 1} = \frac{(1 - \sigma)\tau}{h^2}(y_{i + 1}^n - 2y_i^n + y_{i - 1}^n) + y_i^n + \tau f_i^{n + \sigma}
+\end{equation}
+
+Матрица данной системы является трехдиагональной, при этом выполнено условие диагонального преобладания. Таким образом, схема с весами является устойчивой.
+
+\end{document}
