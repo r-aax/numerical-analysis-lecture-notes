@@ -1,0 +1,263 @@
+\documentclass{article}
+
+% Используемые пакеты.
+\usepackage[top=2cm,bottom=2cm,left=2.5cm,right=2.5cm]{geometry} % размеры полей
+\usepackage{amsmath,amsthm,amscd,amsfonts,amssymb}               % специальные символы и т.п.
+\usepackage{indentfirst}                                         % отступ для начала абзаца
+\usepackage{textcomp}                                            % текст в формулах
+\usepackage{graphicx}                                            % подключение графики
+\usepackage[cp1251]{inputenc}                                    % чтобы документ открывался в редакторе MikTex
+\usepackage[T2A]{fontenc}                                        % для поддержки русского языка
+\usepackage[english,russian]{babel}                              % включение русского языка
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Нумерация по секциям.
+% \numberwithin{equation}{section}
+
+% Стили для теорем, лемм и определений.
+\theoremstyle{plain}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{lemma}{Лемма}[section]
+\newtheorem{definition}{Определение}[section]
+
+\begin{document}
+
+\title{Лекция 2. Основные понятия теории разностных схем.}
+\date{}
+
+\maketitle
+
+\section{Основные понятия}
+
+Пусть дана задача
+
+\begin{equation}
+\begin{cases}
+Lu(x) = f(x), \ x \in G \\
+lu(x) = \mu(x), \ x \in \Gamma, \ \overline{G} = G + \Gamma
+\end{cases}
+\end{equation}
+
+где $L$ - дифференциальный оператор, $l$ - оператор дополнительных условий (граничных и начальных).
+
+Если поставленную задачу нельзя решить аналитически, то она решается приближенно на некотором множестве точек внутри $G$. Данное множество точек называется сеткой, а сами точки называются ее узлами.
+
+Например можно на отрезке $[0, X]$ можно ввести равномерную сетку с шагом $h$ следующим образом:
+
+\begin{equation}
+\overline{\omega_h} = \{ x_k = hk, \ k = 0, 1, \ldots, N, \ hN = X \}
+\end{equation}
+
+\begin{definition}
+Функции, заданные на сетке, называют сеточными функциями: $y_h = y_h(x_k), \ x_k \in \overline{\omega_h}$
+\end{definition}
+
+Для сравнения сеточных функций между собой на близость используют сеточные нормы, например, сеточный аналог равномерной нормы:
+
+\begin{equation}
+||y_h||_C = \max_{x \in \overline{\omega_h}}{|y_h(x)|}
+\end{equation}
+
+Для того, чтобы перейти к численному решению уравнения необходимо выполнить разностную аппроксимацию дифференциального оператора на сетке. Это выполняется с помощью шаблона разностного оператора.
+
+\begin{definition}
+Разностным шаблоном ($\Xi(x, h)$) называется множество узлов сетки $\overline{\omega_h}$, на котором строится разностный оператор.
+\begin{equation}
+L_h u_h(x) = \sum_{\xi \in \Xi(x, h)}{A_h(x, \xi)u_h(\xi)}
+\end{equation}
+где $u_h(\xi)$ - значение функции в узле шаблона, $A_h(x, \xi)$ - коэффициенты в линейной комбинации.
+\end{definition}
+
+\begin{definition}
+Величина $\psi(x) = L_h u(x) - L u(x)$ называется погрешностью разностной аппроксимации в точке $x$.
+\end{definition}
+
+\begin{definition}
+Говорят, что разностный оператор $L_h$ аппроксимирует дифференциальный оператор $L$ с порядком $m > 0$ в точке $x$, если имеет место равенство
+\begin{equation}
+\phi(x) = O(|h|^m)
+\end{equation}
+\end{definition}
+
+Запишем еще раз исходну задачу
+
+\begin{equation}
+\begin{cases}
+Lu(x) = f(x), \ x \in G \\
+lu(x) = \mu(x), \ x \in \Gamma
+\end{cases}
+\end{equation}
+
+Перейдем от данной задачи к поиску соответствующей сеточной функции
+
+\begin{equation}
+\begin{cases}
+L_h y_h(x) = \phi(x), \ x \in \omega_h \\
+l_h y_h(x) = \chi(x), \ x \in \gamma_h
+\end{cases}
+\end{equation}
+
+\begin{definition}
+Семейство уравнений относительно значений функции $y_h$ в узлах сетки, зависящее от параметра $h$, называется разностной схемой.
+\end{definition}
+
+\begin{definition}
+Погрешностью разностной схемы называется величина $z_h = y_h - u_h$
+Тогда
+\begin{equation}
+\begin{cases}
+L_h z_h = \phi_h - L_h u_h = (\phi_h - f) - (L_h u_h - (Lu)_h) = \psi_h, \ x \in \omega_h \\
+l_h z_h = \chi_h - l_h u_h = (\chi_h - \mu) - (l_h u_h - (lu)_h) = \nu_h, \ x \in \gamma_h
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition}
+Говорят, что разностная схема аппроксимирует исходную задачу, если
+\begin{equation}
+\lim_{h \rightarrow 0}{||\psi_h||} = 0, \ \lim_{h \rightarrow 0}{||\nu_h||} = 0
+\end{equation}
+Говорят, что разностная схема имеет $m$-й порядок аппроксимации если
+\begin{equation}
+||\psi_h|| = O(|h|^m), \ ||\nu_h|| = O(|h|^m)
+\end{equation}
+Говорят, что разностная схема сходится, если
+\begin{equation}
+\lim_{h \rightarrow 0}{||y_h - u_h||} = 0
+\end{equation}
+Говорят, что разностная схема имеет $m$-й порядок сходимости, если
+\begin{equation}
+||y_h - u_h|| = O(|h|^m)
+\end{equation}
+\end{definition}
+
+\begin{definition}
+Разностная задача называется поставленной корректно, если для всех достаточно малых $|h| \le h_0$ система разностных уравнений однозначно разрешима для любых входных данных, а также решения $y_h$ непрерывно зависят от входных данных $\phi_h, \chi_h$ равномерно по $h$ (является устойчивой).
+\end{definition}
+
+Устойчивость разностной схемы означает, что для всех достаточно малых $|h| \le h_0$ найдутся такие $M_1 > 0$, $M_2 > 0$, не зависящие ни от $h$, ни от входных данных, что 
+
+\begin{equation}
+||y_h|| \le M_1 ||\phi_h|| + M_2 ||\chi_h||
+\end{equation}
+
+В случае линейных операторов $L_h$, $l_h$ из устойчивости схемы следует, что
+
+\begin{equation}
+||z_h|| = ||y_h - u_h|| \le M_1 ||\psi_h|| + M_2 ||\nu_h||
+\end{equation}
+
+Другими словами, если линейная схема устойчива и аппроксимирует исходную задачу, то она сходится при этом порядок сходимости определяется порядком аппроксимации.
+
+\section{Разностная аппроксимация простейших дифференциальных операторов}
+
+Простейшим дифференциальным оператором является оператор взятия первой производной $Lu = \frac{du}{dx}$. Во внутренней точке равномерной сетки с шагом $h$ аппроксимацию данного оператора можно выполнить следующими способами
+
+\begin{equation}
+u_x = \frac{u(x + h) - u(x)}{h}
+\end{equation}
+
+\begin{equation}
+u_{\overline{x}} = \frac{u(x) - u(x - h)}{h}
+\end{equation}
+
+\begin{equation}
+u_{\dot{x}} = \frac{u(x + h) - u(x - h)}{2h}
+\end{equation}
+
+Применяя формулу Тейлора, можно получить погрешности аппроксимации для данных операторов
+
+\begin{equation}
+u'(x) - u_x = O(h), \ u'(x) - u_{\overline{x}} = O(h), \ u'(x) - u_{\dot{x}} = O(h^2)
+\end{equation}
+
+Таким образом, из приведенных операторов только центральная производная аппроксимирует производную со вторым порядком. Однако при аппроксимации граничных условий взятие центральной производной оказывается недоступным. В этом случае используется следующая схема. Первая производная ищется в общем виде:
+
+\begin{equation}
+L_h = a u(x) + b u(x + h) + c u(x + 2h)
+\end{equation}
+
+Для нахождения коэффициентов $a$, $b$, $c$ необходимо разложить данные значения в ряд Тейлора
+
+\begin{equation}
+L_h = a u(x) + b\left(u(x) + h u'(x) + \frac{h^2}{2}u''(x) + O(h^3)\right) + c\left(u(x) + 2h u'(x) + 2h^2 u''(x) + O(h^3)\right)
+\end{equation}
+
+откуда для достижения условия $L_h = u'(x) + O(h^3)$ коэффициенты должны удовлетворять системе уравнений
+
+\begin{equation}
+\begin{cases}
+a + b + c = 0 \\
+b + 2c = \frac{1}{h} \\
+\frac{b}{2} + 2c = 0
+\end{cases}
+\end{equation}
+
+что приводит к следующей аппроксимации со вторым порядком
+
+\begin{equation}
+L_h = \frac{3u(x) - 4u(x + h) + u(x + 2h)}{2h}
+\end{equation}
+
+Для дифференциального оператора, представляющего собой взятие второй производной $Lu = \frac{d^u}{dx^2}$ разностная аппроксимация со вторым порядком выглядит следующим образом
+
+\begin{equation}
+L_h u = u_{\overline{x}x} = \frac{u_x(x) - u_{\overline{x}}(x)}{h} = \frac{u(x + h) - 2u(x) + u(x - h)}{h^2}
+\end{equation}
+
+\section{Построение разностной схемы на примере линейного уравнения переноса}
+
+Рассмотрим задачу 
+
+\begin{equation}
+\frac{\partial u}{\partial t} + c \frac{\partial u}{\partial x} = f(x, t)
+\end{equation}
+
+Рассмотрим только два шаблона аппроксимации для данной схемы. Сначала рассмотрим явную разностную схему, шаблон которой представлен на рис.~\ref{fig:explicit-scheme}.
+
+\begin{equation}
+\frac{u(x, t + \tau) - u(x, t)}{\tau} + c \frac{u(x, t) - u(x - h, t)}{h} = \phi(x, t)
+\end{equation}
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/explicit-scheme.pdf}
+	\caption{Шаблон явной схемы.}
+	\label{fig:explicit-scheme}
+\end{figure}
+
+Данная разностная схема затрагивает два слоя по времени ($n$ и $n + 1$), причем со слоя с номером $n + 1$ в шаблон входит только одна точка, что позволяет выразить значение $u(x, t + \tau)$ через остальные уже известные элемента шаблона. Такие разностные схемы называют явными.
+
+Запишем разностную схему в виде сеточного уравнения (считаем, что $i$ - нумерация точек по пространству, $n$ - нумерация слоев по времени).
+
+\begin{equation}
+\frac{y_i^{n + 1} - y_i^n}{\tau} + c\frac{y_i^n - y_{i - 1}^n}{h} = \phi_i^n
+\end{equation}
+
+\begin{equation}
+y_i^{n + 1} = \tau \phi_i^n + \left(1 - \frac{c\tau}{h}\right)y_i^n + \frac{c\tau}{h}y_{i - 1}^n
+\end{equation}
+
+Данная разностная схема аппроксимирует исходную задачу с порядком $O(\tau + h)$, а из выражения $y_i^{n + 1}$ через значения с предыдущего слоя видно, что для устойчивости схемы необходимо выполнение условия $|\frac{c\tau}{h}| < 1$.
+
+Неявной разностной схеме соответствует шаблон, представленный на рис.~\ref{fig:implicit-scheme}\ref{fig:implicit-scheme}.
+
+\begin{figure}[h]
+	\centering
+		\includegraphics[width=0.40\textwidth]{./pics/implicit-scheme.pdf}
+	\caption{Шаблон неявной схемы.}
+	\label{fig:implicit-scheme}
+\end{figure}
+
+Запишем неявную схему
+
+\begin{equation}
+\frac{y_i^{n + 1} - y_i^n}{\tau} + c\frac{y_i^{n + 1} - y_{i - 1}^{n + 1}}{h} = \phi_i^n
+\end{equation}
+
+Данная схема аппроксимирует исходную задачу с порядком $O(\tau + h)$ и является устойчивой.
+
+\end{document}
