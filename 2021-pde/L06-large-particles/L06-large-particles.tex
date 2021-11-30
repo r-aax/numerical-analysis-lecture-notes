@@ -1,0 +1,165 @@
+\documentclass{article}
+
+% Используемые пакеты.
+\usepackage[top=2cm,bottom=2cm,left=2.5cm,right=2.5cm]{geometry} % размеры полей
+\usepackage{amsmath,amsthm,amscd,amsfonts,amssymb}               % специальные символы и т.п.
+\usepackage{indentfirst}                                         % отступ для начала абзаца
+\usepackage{textcomp}                                            % текст в формулах
+\usepackage{graphicx}                                            % подключение графики
+\usepackage[cp1251]{inputenc}                                    % чтобы документ открывался в редакторе MikTex
+\usepackage[T2A]{fontenc}                                        % для поддержки русского языка
+\usepackage[english,russian]{babel}                              % включение русского языка
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Нумерация по секциям.
+% \numberwithin{equation}{section}
+
+% Стили для теорем, лемм и определений.
+\theoremstyle{plain}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{lemma}{Лемма}[section]
+\newtheorem{definition}{Определение}[section]
+
+\begin{document}
+
+\title{Лекция 6. Метод крупных частиц.}
+\date{}
+
+\maketitle
+
+\section{Система уравнений газовой динамики}
+
+Будем рассматривать систему уравнений газовой динамики в следующем развернутом виде
+
+\begin{equation}
+\begin{cases}
+\frac{\partial \rho}{\partial t} + \frac{\partial \rho u}{\partial x} + \frac{\partial \rho v}{\partial y} + \frac{\partial \rho w}{\partial z} = 0 \\
+\frac{\partial \rho u}{\partial t} + \frac{\partial (\rho u^2 + p)}{\partial x} + \frac{\partial \rho u v}{\partial y} + \frac{\partial \rho u w}{\partial z} = 0 \\
+\frac{\partial \rho v}{\partial t} + \frac{\partial \rho v u}{\partial x} + \frac{\partial (\rho v^2 + p)}{\partial y} + \frac{\partial \rho v w}{\partial z} = 0 \\
+\frac{\partial \rho w}{\partial t} + \frac{\partial \rho w u}{\partial x} + \frac{\partial \rho w v}{\partial y} + \frac{\partial (\rho w^w + p)}{\partial z} = 0 \\
+\frac{\partial \rho e}{\partial t} + \frac{\partial (\rho e + p) u}{\partial x} + \frac{\partial (\rho e + p) v}{\partial y} + \frac{\partial (\rho e + p) w}{\partial z} = 0
+\end{cases}
+\end{equation}
+
+где $\rho$ - плотность; $u$, $v$, $w$ - составляющие скорости по направлениям $x$, $y$, $z$; $p$ - давление; $e$ - удельная энергия $e = \epsilon + \frac{1}{2}(u^2 + v^2 + w^2)$.
+
+Будем рассматривать одномерный вариант данной задачи:
+
+\begin{equation}\label{eqn:d1}
+\begin{cases}
+\frac{\partial \rho}{\partial t} + \frac{\partial \rho u}{\partial x} = 0 \\
+\frac{\partial \rho u}{\partial t} + \frac{\partial \rho u^2}{\partial x} + \frac{\partial p}{\partial x} = 0 \\
+\frac{\partial \rho e}{\partial t} + \frac{\partial \rho e u}{\partial x} + \frac{\partial p u}{\partial x} = 0
+\end{cases}
+\end{equation}
+
+где $\rho$ - плотность; $u$ - скорость; $p$ - давление; $e$ - удельная энергия $e = \epsilon + \frac{u^2}{2}$.
+
+\section{Метод крупных частиц}
+
+Метод крупных частиц расчета движения жидкости и газа выполняется в три этапа.
+На первом (<<эйлеровом>>) этапе движение газа рассматривается без учета переноса массы, количества движения и энергии.
+На втором (<<лагранжево>>) этапе определяется перенос массы газа.
+На третьем (заключительном) этапе производится пересчет параметров с учетом перетекания массы, количества движения и энергии. 
+
+Далее подробно рассмотрим этапы методы крупных частиц на примере одномерного уравнения движения газа.
+
+\section{Эйлеров этап}
+
+Система уравнений (\ref{eqn:d1}) для эйлерова этапа преобразуется к следующему виду:
+
+\begin{equation}
+\begin{cases}
+\frac{\partial \rho}{\partial t} = 0 \\
+\frac{\partial \rho u}{\partial t} + \frac{\partial p}{\partial x} = 0 \\
+\frac{\partial \rho e}{\partial t} + \frac{\partial p u}{\partial x} = 0
+\end{cases}
+\end{equation}
+
+Перепишем систему еще раз с учетом постоянства $\rho$:
+
+\begin{equation}
+\begin{cases}
+\rho \frac{\partial u}{\partial t} + \frac{\partial p}{\partial x} = 0 \\
+\rho \frac{\partial e}{\partial t} + \frac{\partial p u}{\partial x} = 0
+\end{cases}
+\end{equation}
+
+Разобьем расчетную область на равное количество расчетных ячеек с линейным размером $h$ и составим разностную схему, обозначая нижним индексом $i$ газодинамические величины, отнесенные к центру $i$-ой ячейки, а индексом $i + \frac{1}{2}$ - газодинамические величины на границе между ячейками $i$ и $(i + 1)$. Верхним индексом будем обозначать слой по времени.
+
+\begin{equation}
+\begin{cases}
+\rho_i^n \frac{\tilde{u}_i^{n + 1} - u_i^n}{\tau} + \frac{p_{i + \frac{1}{2}}^n - p_{i - \frac{1}{2}}^n}{h} = 0 \\
+\rho_i^n \frac{\tilde{e}_i^{n + 1} - e_i^n}{\tau} + \frac{p_{i + \frac{1}{2}}^n u_{i + \frac{1}{2}}^n - p_{i - \frac{1}{2}}^n u_{i - \frac{1}{2}}^n}{h} = 0
+\end{cases}
+\end{equation}
+
+Из данных уравнений выражаются промежуточные значения скорости и внутренней энергии для ячейки:
+
+\begin{eqnarray}
+\tilde{u}_i^{n + 1} = u_i^n - \frac{\tau}{h \rho_i^n}(p_{i + \frac{1}{2}}^n - p_{i - \frac{1}{2}}^n) \\
+\tilde{e}_i^{n + 1} = e_i^n - \frac{\tau}{h \rho_i^n}(p_{i + \frac{1}{2}}^n u_{i + \frac{1}{2}}^n - p_{i - \frac{1}{2}}^n u_{i - \frac{1}{2}}^n)
+\end{eqnarray}
+
+При этом газодинамические параметры на границе между ячейками вычисляются как среднее арифметическое параметров соответствующих соседних ячеек
+
+\begin{eqnarray}
+p_{i + \frac{1}{2}}^n = \frac{p_i^n + p_{i + 1}^n}{2} \\
+p_{i - \frac{1}{2}}^n = \frac{p_i^n + p_{i - 1}^n}{2} \\
+u_{i + \frac{1}{2}}^n = \frac{u_i^n + u_{i + 1}^n}{2} \\
+u_{i - \frac{1}{2}}^n = \frac{u_i^n + u_{i - 1}^n}{2}
+\end{eqnarray}
+
+После вычисления промежуточных значений $\tilde{u}_i^{n + 1}$ и $\tilde{e}_i^{n + 1}$ эйлеров этап считается завершенным.
+
+\section{Лагранжев этап}
+
+На лагранжевом этапе нужно вычислить массу газа, которая проходит через границы ячейки.
+Так как мы рассматриваем одномерный случай, то требуется вычислить потоки массы через правую и левую границу. При этом площадь границы у всех ячеек считаем постоянной, равной $S$.
+
+\begin{eqnarray}
+\Delta M_{i + \frac{1}{2}}^n = \frac{\rho_i^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} > 0 \\
+\Delta M_{i + \frac{1}{2}}^n = \frac{\rho_{i + 1}^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} < 0 \\
+\end{eqnarray}
+
+Смысл данных формул в том, что если на правой границе ячейки скорость движения газа положительна, то газ с плотностью $\rho_i^n$ перетекает из текущей ячейки в правую ячейку.
+Если же на правой границе ячейки скорость движения газа отрицательна, то газ с плотностью $\rho_{i + 1}^n$ перетекает из ячейки справа в текущую ячейку.
+
+Аналогично рассматриваем левую границу ячейки.
+
+\begin{eqnarray}
+\Delta M_{i - \frac{1}{2}}^n = \frac{\rho_{i - 1}^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1} > 0 \\
+\Delta M_{i - \frac{1}{2}}^n = \frac{\rho_i^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1} < 0 \\
+\end{eqnarray}
+
+После вычисления потоков масс через все границы всех ячеек лагранжев этап считается завершенным.
+
+\section{Заключительный этап}
+
+На третьем этапе происходит пересчет новых значений газодинамических параметров из соотношений для нового значения массы, количества движения и энергии в ячейке.
+
+\begin{eqnarray}
+M_i^{n + 1} = M_i^n - \Delta M_{i + \frac{1}{2}}^n - \Delta M_{i - \frac{1}{2}}^n \\
+M_i^{n + 1}u_i^{n + 1} = M_i^n u_i^n - \Delta M_{i + \frac{1}{2}}^n \tilde{u}_{i + \frac{1}{2}}^{n + 1} + \Delta M_{i - \frac{1}{2}}^n \tilde{u}_{i - \frac{1}{2}}^{n + 1} \\
+M_i^{n + 1}e_i^{n + 1} = M_i^n e_i^n - \Delta M_{i + \frac{1}{2}}^n \tilde{e}_{i + \frac{1}{2}}^{n + 1} + \Delta M_{i - \frac{1}{2}}^n \tilde{e}_{i - \frac{1}{2}}^{n + 1}
+\end{eqnarray}
+
+Из данных уравнений выражаются новые значения газодинамических величин в ячейке
+
+\begin{eqnarray}
+\rho_i^{n + 1} = \rho_i^n + \frac{\Delta M_{i - \frac{1}{2}}^n - \Delta M_{i + \frac{1}{2}}^n}{Sh} \\
+u_i^{n + 1} = \frac{\rho_i^n}{\rho_i^{n + 1}}u_i^n + \frac{\Delta M_{i - \frac{1}{2}}^n \tilde{u}_{i - \frac{1}{2}}^{n + 1} - \Delta M_{i + \frac{1}{2}}^n \tilde{u}_{i + \frac{1}{2}}^{n + 1}}{\rho_i^{n + 1}Sh} \\
+e_i^{n + 1} = \frac{\rho_i^n}{\rho_i^{n + 1}}e_i^n + \frac{\Delta M_{i - \frac{1}{2}}^n \tilde{e}_{i - \frac{1}{2}}^{n + 1} - \Delta M_{i + \frac{1}{2}}^n \tilde{e}_{i + \frac{1}{2}}^{n + 1}}{\rho_i^{n + 1}Sh}
+\end{eqnarray}
+
+Значения промежуточных значений скорости и энергии на границах ячейки определяются с учетом направления движения газа
+
+\begin{eqnarray}
+\tilde{u}_{i + \frac{1}{2}}^{n + 1} = \tilde{u}_i^{n + 1}, \ \tilde{e}_{i + \frac{1}{2}}^{n + 1} = \tilde{e}_i^{n + 1}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} > 0 \\
+\tilde{u}_{i + \frac{1}{2}}^{n + 1} = \tilde{u}_{i + 1}^{n + 1}, \ \tilde{e}_{i + \frac{1}{2}}^{n + 1} = \tilde{e}_{i + 1}^{n + 1}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} < 0 \\
+\end{eqnarray}
+
+\end{document}
