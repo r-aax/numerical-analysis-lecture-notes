@@ -39,7 +39,7 @@
 \frac{\partial \rho}{\partial t} + \frac{\partial \rho u}{\partial x} + \frac{\partial \rho v}{\partial y} + \frac{\partial \rho w}{\partial z} = 0 \\
 \frac{\partial \rho u}{\partial t} + \frac{\partial (\rho u^2 + p)}{\partial x} + \frac{\partial \rho u v}{\partial y} + \frac{\partial \rho u w}{\partial z} = 0 \\
 \frac{\partial \rho v}{\partial t} + \frac{\partial \rho v u}{\partial x} + \frac{\partial (\rho v^2 + p)}{\partial y} + \frac{\partial \rho v w}{\partial z} = 0 \\
-\frac{\partial \rho w}{\partial t} + \frac{\partial \rho w u}{\partial x} + \frac{\partial \rho w v}{\partial y} + \frac{\partial (\rho w^w + p)}{\partial z} = 0 \\
+\frac{\partial \rho w}{\partial t} + \frac{\partial \rho w u}{\partial x} + \frac{\partial \rho w v}{\partial y} + \frac{\partial (\rho w^2 + p)}{\partial z} = 0 \\
 \frac{\partial \rho e}{\partial t} + \frac{\partial (\rho e + p) u}{\partial x} + \frac{\partial (\rho e + p) v}{\partial y} + \frac{\partial (\rho e + p) w}{\partial z} = 0
 \end{cases}
 \end{equation}
@@ -56,7 +56,7 @@
 \end{cases}
 \end{equation}
 
-где $\rho$ - плотность; $u$ - скорость; $p$ - давление; $e$ - удельная энергия $e = \epsilon + \frac{u^2}{2}$.
+где $\rho$ - плотность; $u$ - скорость; $p = (\gamma - 1) \rho \epsilon$ - давление; $e$ - удельная энергия $e = \epsilon + \frac{u^2}{2}$.
 
 \section{Метод крупных частиц}
 
@@ -113,6 +113,15 @@ u_{i + \frac{1}{2}}^n = \frac{u_i^n + u_{i + 1}^n}{2} \\
 u_{i - \frac{1}{2}}^n = \frac{u_i^n + u_{i - 1}^n}{2}
 \end{eqnarray}
 
+После расчета промежуточных величин $\tilde{u}_i^{n + 1}$ и $\tilde{e}_i^{n + 1}$ мы можем точно так же вычислять значения данных величин на левой и правой границе ячеек:
+
+\begin{eqnarray}
+\tilde{u}_{i + \frac{1}{2}}^{n + 1} = \frac{\tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1}}{2} \\
+\tilde{u}_{i - \frac{1}{2}}^{n + 1} = \frac{\tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1}}{2} \\
+\tilde{e}_{i + \frac{1}{2}}^{n + 1} = \frac{\tilde{e}_i^{n + 1} + \tilde{e}_{i + 1}^{n + 1}}{2} \\
+\tilde{e}_{i - \frac{1}{2}}^{n + 1} = \frac{\tilde{e}_i^{n + 1} + \tilde{e}_{i - 1}^{n + 1}}{2}
+\end{eqnarray}
+
 После вычисления промежуточных значений $\tilde{u}_i^{n + 1}$ и $\tilde{e}_i^{n + 1}$ эйлеров этап считается завершенным.
 
 \section{Лагранжев этап}
@@ -121,8 +130,8 @@ u_{i - \frac{1}{2}}^n = \frac{u_i^n + u_{i - 1}^n}{2}
 Так как мы рассматриваем одномерный случай, то требуется вычислить потоки массы через правую и левую границу. При этом площадь границы у всех ячеек считаем постоянной, равной $S$.
 
 \begin{eqnarray}
-\Delta M_{i + \frac{1}{2}}^n = \frac{\rho_i^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} > 0 \\
-\Delta M_{i + \frac{1}{2}}^n = \frac{\rho_{i + 1}^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} < 0 \\
+\Delta M_{i + \frac{1}{2}}^n = \rho_i^n S \tau \tilde{u}_{i + \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i + \frac{1}{2}}^{n + 1} > 0 \\
+\Delta M_{i + \frac{1}{2}}^n = \rho_{i + 1}^n S \tau \tilde{u}_{i + \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i + \frac{1}{2}}^{n + 1} < 0
 \end{eqnarray}
 
 Смысл данных формул в том, что если на правой границе ячейки скорость движения газа положительна, то газ с плотностью $\rho_i^n$ перетекает из текущей ячейки в правую ячейку.
@@ -131,35 +140,44 @@ u_{i - \frac{1}{2}}^n = \frac{u_i^n + u_{i - 1}^n}{2}
 Аналогично рассматриваем левую границу ячейки.
 
 \begin{eqnarray}
-\Delta M_{i - \frac{1}{2}}^n = \frac{\rho_{i - 1}^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1} > 0 \\
-\Delta M_{i - \frac{1}{2}}^n = \frac{\rho_i^n S \tau (\tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1})}{2}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i - 1}^{n + 1} < 0 \\
+\Delta M_{i - \frac{1}{2}}^n = \rho_{i - 1}^n S \tau \tilde{u}_{i - \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i - \frac{1}{2}}^{n + 1} > 0 \\
+\Delta M_{i - \frac{1}{2}}^n = \rho_i^n S \tau \tilde{u}_{i - \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i - \frac{1}{2}}^{n + 1} < 0
 \end{eqnarray}
 
-После вычисления потоков масс через все границы всех ячеек лагранжев этап считается завершенным.
+Аналогично рассматриваются потоки количества движения и количества энергии через границы.
+
+\begin{eqnarray}
+\Delta (Mu)_{i + \frac{1}{2}}^n = \rho_i^n \tilde{u}_i^{n + 1} S \tau \tilde{u}_{i + \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i + \frac{1}{2}}^{n + 1} > 0 \\
+\Delta (Mu)_{i + \frac{1}{2}}^n = \rho_{i + 1}^n \tilde{u}_{i + 1}^{n + 1} S \tau \tilde{u}_{i + \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i + \frac{1}{2}}^{n + 1} < 0 \\
+\Delta (Mu)_{i - \frac{1}{2}}^n = \rho_{i - 1}^n \tilde{u}_{i - 1}^{n + 1} S \tau \tilde{u}_{i - \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i - \frac{1}{2}}^{n + 1} > 0 \\
+\Delta (Mu)_{i - \frac{1}{2}}^n = \rho_i^n S \tilde{u}_i^{n + 1} \tau \tilde{u}_{i - \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i - \frac{1}{2}}^{n + 1} < 0
+\end{eqnarray}
+
+\begin{eqnarray}
+\Delta (Me)_{i + \frac{1}{2}}^n = \rho_i^n \tilde{e}_i^{n + 1} S \tau \tilde{u}_{i + \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i + \frac{1}{2}}^{n + 1} > 0 \\
+\Delta (Me)_{i + \frac{1}{2}}^n = \rho_{i + 1}^n \tilde{e}_{i + 1}^{n + 1} S \tau \tilde{u}_{i + \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i + \frac{1}{2}}^{n + 1} < 0 \\
+\Delta (Me)_{i - \frac{1}{2}}^n = \rho_{i - 1}^n \tilde{e}_{i - 1}^{n + 1} S \tau \tilde{u}_{i - \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i - \frac{1}{2}}^{n + 1} > 0 \\
+\Delta (Me)_{i - \frac{1}{2}}^n = \rho_i^n S \tilde{e}_i^{n + 1} \tau \tilde{u}_{i - \frac{1}{2}}^{n + 1}, \ \tilde{u}_{i - \frac{1}{2}}^{n + 1} < 0
+\end{eqnarray}
+
+После вычисления потоков масс, а также количества движения и количества энергии через все границы всех ячеек лагранжев этап считается завершенным.
 
 \section{Заключительный этап}
 
 На третьем этапе происходит пересчет новых значений газодинамических параметров из соотношений для нового значения массы, количества движения и энергии в ячейке.
 
 \begin{eqnarray}
-M_i^{n + 1} = M_i^n - \Delta M_{i + \frac{1}{2}}^n - \Delta M_{i - \frac{1}{2}}^n \\
-M_i^{n + 1}u_i^{n + 1} = M_i^n u_i^n - \Delta M_{i + \frac{1}{2}}^n \tilde{u}_{i + \frac{1}{2}}^{n + 1} + \Delta M_{i - \frac{1}{2}}^n \tilde{u}_{i - \frac{1}{2}}^{n + 1} \\
-M_i^{n + 1}e_i^{n + 1} = M_i^n e_i^n - \Delta M_{i + \frac{1}{2}}^n \tilde{e}_{i + \frac{1}{2}}^{n + 1} + \Delta M_{i - \frac{1}{2}}^n \tilde{e}_{i - \frac{1}{2}}^{n + 1}
+M_i^{n + 1} = M_i^n - \Delta M_{i + \frac{1}{2}}^n + \Delta M_{i - \frac{1}{2}}^n \\
+M_i^{n + 1}u_i^{n + 1} = M_i^n u_i^n - \Delta (Mu)_{i + \frac{1}{2}}^n + \Delta (Mu)_{i - \frac{1}{2}}^n \\
+M_i^{n + 1}e_i^{n + 1} = M_i^n e_i^n - \Delta (Me)_{i + \frac{1}{2}}^n + \Delta (Me)_{i - \frac{1}{2}}^n
 \end{eqnarray}
 
 Из данных уравнений выражаются новые значения газодинамических величин в ячейке
 
 \begin{eqnarray}
 \rho_i^{n + 1} = \rho_i^n + \frac{\Delta M_{i - \frac{1}{2}}^n - \Delta M_{i + \frac{1}{2}}^n}{Sh} \\
-u_i^{n + 1} = \frac{\rho_i^n}{\rho_i^{n + 1}}u_i^n + \frac{\Delta M_{i - \frac{1}{2}}^n \tilde{u}_{i - \frac{1}{2}}^{n + 1} - \Delta M_{i + \frac{1}{2}}^n \tilde{u}_{i + \frac{1}{2}}^{n + 1}}{\rho_i^{n + 1}Sh} \\
-e_i^{n + 1} = \frac{\rho_i^n}{\rho_i^{n + 1}}e_i^n + \frac{\Delta M_{i - \frac{1}{2}}^n \tilde{e}_{i - \frac{1}{2}}^{n + 1} - \Delta M_{i + \frac{1}{2}}^n \tilde{e}_{i + \frac{1}{2}}^{n + 1}}{\rho_i^{n + 1}Sh}
-\end{eqnarray}
-
-Значения промежуточных значений скорости и энергии на границах ячейки определяются с учетом направления движения газа
-
-\begin{eqnarray}
-\tilde{u}_{i + \frac{1}{2}}^{n + 1} = \tilde{u}_i^{n + 1}, \ \tilde{e}_{i + \frac{1}{2}}^{n + 1} = \tilde{e}_i^{n + 1}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} > 0 \\
-\tilde{u}_{i + \frac{1}{2}}^{n + 1} = \tilde{u}_{i + 1}^{n + 1}, \ \tilde{e}_{i + \frac{1}{2}}^{n + 1} = \tilde{e}_{i + 1}^{n + 1}, \ \tilde{u}_i^{n + 1} + \tilde{u}_{i + 1}^{n + 1} < 0 \\
+u_i^{n + 1} = \frac{\rho_i^n}{\rho_i^{n + 1}}u_i^n + \frac{\Delta (Mu)_{i - \frac{1}{2}}^n - \Delta (Mu)_{i + \frac{1}{2}}^n }{\rho_i^{n + 1}Sh} \\
+e_i^{n + 1} = \frac{\rho_i^n}{\rho_i^{n + 1}}e_i^n + \frac{\Delta (Me)_{i - \frac{1}{2}}^n - \Delta (Me)_{i + \frac{1}{2}}^n }{\rho_i^{n + 1}Sh}
 \end{eqnarray}
 
 \end{document}
